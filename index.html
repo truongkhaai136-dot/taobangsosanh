@@ -8,7 +8,7 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
-            background-color: #f4f7f6;
+            background-color: #f8f9fa;
             color: #333;
         }
         h1 {
@@ -23,34 +23,37 @@
         }
         .lang-box {
             flex: 1 1 30%;
-            min-width: 250px;
+            min-width: 280px;
             background: #fff;
             padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid #dee2e6;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
         .lang-box h3 {
             margin-top: 0;
             font-size: 16px;
-            color: #2980b9;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            color: #0056b3;
+            border-bottom: 2px solid #f1f3f5;
+            padding-bottom: 10px;
         }
         textarea {
             width: 100%;
-            height: 150px;
-            padding: 8px;
+            height: 180px;
+            padding: 10px;
             box-sizing: border-box;
-            border: 1px solid #ccc;
+            border: 1px solid #ced4da;
             border-radius: 4px;
             resize: vertical;
+            font-family: inherit;
+            line-height: 1.5;
         }
         .controls {
             background: #fff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid #dee2e6;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             margin-bottom: 20px;
         }
         .checkbox-group {
@@ -62,37 +65,48 @@
         .checkbox-group label {
             cursor: pointer;
             user-select: none;
+            background: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .checkbox-group input:checked + label {
+            background: #0056b3;
+            color: white;
         }
         button {
-            background-color: #27ae60;
+            background-color: #28a745;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 16px;
+            font-weight: bold;
             border-radius: 5px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.2s;
         }
         button:hover {
-            background-color: #2ecc71;
+            background-color: #218838;
         }
         .table-container {
             overflow-x: auto;
             background: #fff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid #dee2e6;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 600px;
+            min-width: 800px;
         }
         th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
+            border: 1px solid #dee2e6;
+            padding: 15px;
             text-align: left;
             vertical-align: top;
+            line-height: 1.6;
         }
         th {
             background-color: #2c3e50;
@@ -102,18 +116,20 @@
         }
         .speaker-col {
             font-weight: bold;
-            color: #c0392b;
+            color: #d35400;
             white-space: nowrap;
             width: 120px;
+            text-align: center;
+            background-color: #fdfefe;
         }
     </style>
 </head>
 <body>
 
-    <h1>So Sánh Hội Thoại</h1>
+    <h1>So Sánh Hội Thoại Đa Ngôn Ngữ</h1>
 
     <div class="controls">
-        <h3>1. Chọn ngôn ngữ muốn hiển thị trên bảng so sánh:</h3>
+        <h3 style="margin-top:0;">1. Chọn ngôn ngữ:</h3>
         <div class="checkbox-group" id="language-selectors">
             </div>
         <button onclick="generateTable()">Tạo Bảng So Sánh</button>
@@ -133,45 +149,40 @@
 
     <script>
         const languages = [
-            "Tiếng Anh", "Tiếng Việt", "Tiếng Đức", "Tiếng Hàn", "Tiếng Nhật", 
-            "Tiếng Thái", "Tiếng Trung", "Tiếng Pháp", "Tiếng Tây Ban Nha", 
+            "Tiếng Việt", "Tiếng Đức", "Tiếng Trung", "Tiếng Anh", "Tiếng Hàn", 
+            "Tiếng Nhật", "Tiếng Thái", "Tiếng Pháp", "Tiếng Tây Ban Nha", 
             "Tiếng Hindi", "Tiếng Ả Rập", "Tiếng Ý", "Tiếng Nga", "Tiếng Filipino"
         ];
 
-        // Dữ liệu mẫu
-        const sampleData = {
-            "Tiếng Việt": `Cảnh 1: Vấn đề Xuất Hiện\nLeo: (Đập bút xuống bàn) Thế này thì bất khả thi quá. Tôi chỉ muốn mở một cái tài khoản ngân hàng ngu ngốc thôi mà. Sao tài khoản vãng lai lại cần biết họ thời con gái của bà cố tôi và màu lông của con thú cưng đầu tiên chứ?\nMaya: (Mỉm cười) Để tôi xem nào. Ồ, bạn đang điền phần Thông tin Cá nhân để mở tài khoản mới đúng không? Đó không phải là bài kiểm tra về thú cưng đâu. Đó là mẫu "Biết rõ Khách hàng" của ngân hàng. Mỗi ô trống đều có lý do của nó.\nLeo: Vậy tại sao nó lại hỏi "Tên", "Họ" và "Tên Gia đình"? Chẳng phải mấy cái đó giống nhau sao?\nRaj: (Kéo ghế lại gần) Câu hỏi hay đấy. Đó là lỗi số 1 của người mới bắt đầu. Trong nhiều mẫu đơn phương Tây, "Tên Gia đình" cũng chính là "Họ". Nhưng trong một số nền văn hóa – như phong tục đặt tên của người Tây Ban Nha hay Bồ Đào Nha – một người có hai họ: họ nội và họ ngoại. Ngân hàng rất dễ nhầm. Cách chính xác là gì? Hãy nhìn vào phần chữ in nhỏ. Thông thường, "Họ" là họ chính của bạn trên giấy tờ tùy thân hợp pháp.`,
-            "Tiếng Đức": `Szene 1: Das Problem taucht auf\nLeo: (klopft mit dem Stift auf den Tisch) Das ist unmöglich. Ich will doch nur ein blödes Bankkonto eröffnen. Warum muss ein Girokonto wissen, wie meine Urgroßmutter mit Mädchennamen hieß und welche Farbe mein erstes Haustier hatte?\nMaya: (lächelt) Lass mich mal sehen. Ah, du füllst gerade den Abschnitt „Persönliche Daten“ für ein neues Konto aus, oder? Das ist kein Haustier-Quiz. Das ist das „Know Your Customer“-Formular der Bank. Jedes Feld hat seinen Grund.\nLeo: Warum fragt es dann nach „Vorname“, „Nachname“ und „Familienname“? Ist das nicht alles dasselbe?\nRaj: (zieht einen Stuhl heran) Gute Frage. Das ist der Anfängerfehler Nummer eins. In vielen westlichen Formularen gilt: „Familienname“ = „Nachname“. Aber in manchen Kulturen – zum Beispiel im spanischen oder portugiesischen Namenssystem – hat man zwei Familiennamen: einen vom Vater und einen von der Mutter. Banken kommen da durcheinander. Die richtige Vorgehensweise? Das Kleingedruckte lesen. Meistens ist „Nachname“ dein Hauptnachname laut Ausweis.`,
-            "Tiếng Trung": `场景一：问题出现\nLeo：（用笔敲桌子）这也太离谱了吧。我不过是想开个普通的银行账户，为什么一个活期账户还要知道我曾祖母的娘家姓，还有我第一只宠物的颜色？\nMaya：（微笑）我看看。哦，你是在填写新开户的“个人信息”部分，对吧？这可不是什么宠物问答，这是银行的“了解你的客户”（KYC）表格。每一项都有它的用途。\nLeo：那为什么要写“名”“姓”和“家族名”？这不都是一回事吗？\nRaj：（拉把椅子坐下）好问题，这可是新手最常犯的错误。很多西方表格里，“家族名”其实就等于“姓”。但在一些文化里——比如西班牙或葡萄牙的命名习惯——一个人会有两个姓：父姓和母姓，这就容易让银行搞混。正确做法是看清小字说明，一般来说，“姓”指的是你在法律证件上的主要姓氏。`
-        };
-
-        // Khởi tạo giao diện
         function init() {
             const selectorContainer = document.getElementById('language-selectors');
             const inputContainer = document.getElementById('input-container');
 
-            languages.forEach(lang => {
-                // Tạo Checkbox
-                const label = document.createElement('label');
-                const isChecked = sampleData[lang] ? 'checked' : '';
-                label.innerHTML = `<input type="checkbox" value="${lang}" class="lang-check" ${isChecked}> ${lang}`;
-                selectorContainer.appendChild(label);
+            languages.forEach((lang, index) => {
+                // Tạo Checkbox (Mặc định check 3 ngôn ngữ đầu tiên)
+                const isChecked = index < 3 ? 'checked' : '';
+                const checkboxHtml = `
+                    <div>
+                        <input type="checkbox" value="${lang}" class="lang-check" id="chk-${lang}" ${isChecked} style="display:none;">
+                        <label for="chk-${lang}">${lang}</label>
+                    </div>
+                `;
+                selectorContainer.insertAdjacentHTML('beforeend', checkboxHtml);
 
                 // Tạo Textarea
                 const box = document.createElement('div');
                 box.className = 'lang-box';
-                const content = sampleData[lang] || '';
                 box.innerHTML = `
                     <h3>${lang}</h3>
-                    <textarea id="text-${lang}" placeholder="Dán hội thoại ${lang} vào đây... (Định dạng: Tên nhân vật: Nội dung)">${content}</textarea>
+                    <textarea id="text-${lang}" placeholder="Dán văn bản ${lang} vào đây..."></textarea>
                 `;
                 inputContainer.appendChild(box);
             });
         }
 
-        // Hàm phân tích đoạn văn bản thành mảng các lượt thoại
         function parseDialogue(text) {
-            const lines = text.split('\\n');
+            // Tách bằng ký tự xuống dòng thực tế
+            const lines = text.split('\n');
             const result = [];
             let currentSpeaker = "";
             let currentText = "";
@@ -180,45 +191,47 @@
                 let line = lines[i].trim();
                 if (!line) continue;
 
-                // Tìm dấu hai chấm (hỗ trợ cả dấu : tiếng Anh và ： tiếng Trung/Nhật)
-                const match = line.match(/^([^:：]+)[:：](.*)$/);
+                // Bỏ qua các dòng tiêu đề cảnh (ví dụ: Cảnh 1:, Szene 1:, 场景一：)
+                if (/^(Cảnh|Szene|Scene|场景)/i.test(line)) {
+                    continue;
+                }
+
+                // Nhận diện tên nhân vật: Tìm chuỗi (dưới 30 ký tự) đứng trước dấu : hoặc ：
+                const match = line.match(/^([^:：]{1,30})[:：](.*)$/);
                 
                 if (match) {
-                    // Nếu đã có người nói trước đó, lưu lại
+                    // Lưu lại người nói trước đó (nếu có)
                     if (currentSpeaker) {
-                        result.push({ speaker: currentSpeaker.trim(), text: currentText.trim() });
+                        result.push({ speaker: currentSpeaker, text: currentText.trim() });
                     }
-                    currentSpeaker = match[1];
-                    currentText = match[2];
+                    currentSpeaker = match[1].trim();
+                    currentText = match[2].trim();
                 } else {
-                    // Nếu không có dấu hai chấm, nối tiếp vào câu nói của người hiện tại
-                    // Bỏ qua các dòng tiêu đề như "Cảnh 1..." nếu chưa có người nói
+                    // Nếu không có dấu hai chấm, nối tiếp dòng này vào câu nói hiện tại
                     if (currentSpeaker) {
-                        currentText += " " + line;
+                        currentText += (currentText ? " " : "") + line;
                     }
                 }
             }
-            // Lưu lượt thoại cuối cùng
+            // Lưu lượt nói cuối cùng
             if (currentSpeaker) {
-                result.push({ speaker: currentSpeaker.trim(), text: currentText.trim() });
+                result.push({ speaker: currentSpeaker, text: currentText.trim() });
             }
             return result;
         }
 
-        // Hàm tạo bảng
         function generateTable() {
             const checkboxes = document.querySelectorAll('.lang-check:checked');
             const selectedLangs = Array.from(checkboxes).map(cb => cb.value);
 
             if (selectedLangs.length === 0) {
-                alert("Vui lòng chọn ít nhất 1 ngôn ngữ để so sánh!");
+                alert("Vui lòng chọn ít nhất 1 ngôn ngữ!");
                 return;
             }
 
             const parsedData = {};
             let maxTurns = 0;
 
-            // Phân tích dữ liệu cho các ngôn ngữ được chọn
             selectedLangs.forEach(lang => {
                 const text = document.getElementById(`text-\${lang}`).value;
                 const turns = parseDialogue(text);
@@ -228,23 +241,21 @@
                 }
             });
 
-            // Tạo Header cho bảng
             const thead = document.getElementById('table-head');
-            thead.innerHTML = '<th class="speaker-col">Nhân vật</th>';
+            thead.innerHTML = '<th class="speaker-col">Nhân Vật</th>';
             selectedLangs.forEach(lang => {
                 const th = document.createElement('th');
                 th.innerText = lang;
                 thead.appendChild(th);
             });
 
-            // Tạo Body cho bảng
             const tbody = document.getElementById('table-body');
             tbody.innerHTML = '';
 
             for (let i = 0; i < maxTurns; i++) {
                 const tr = document.createElement('tr');
                 
-                // Cột Tên Nhân Vật (Lấy từ ngôn ngữ đầu tiên có dữ liệu ở lượt này)
+                // Xác định tên nhân vật (Ưu tiên lấy từ cột ngôn ngữ đầu tiên có dữ liệu)
                 let speakerName = "";
                 for (let lang of selectedLangs) {
                     if (parsedData[lang][i] && parsedData[lang][i].speaker) {
@@ -258,13 +269,12 @@
                 tdSpeaker.innerText = speakerName;
                 tr.appendChild(tdSpeaker);
 
-                // Các cột nội dung
                 selectedLangs.forEach(lang => {
                     const td = document.createElement('td');
                     if (parsedData[lang][i]) {
                         td.innerText = parsedData[lang][i].text;
                     } else {
-                        td.innerText = ""; // Bỏ trống nếu ngôn ngữ này thiếu dòng thoại
+                        td.innerText = "-"; 
                     }
                     tr.appendChild(td);
                 });
@@ -273,12 +283,9 @@
             }
 
             document.getElementById('table-container').style.display = 'block';
-            
-            // Cuộn mượt xuống bảng kết quả
             document.getElementById('table-container').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Khởi chạy khi load trang
         window.onload = init;
     </script>
 </body>
