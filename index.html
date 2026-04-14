@@ -105,10 +105,11 @@
         const languages = ["Tiếng Việt", "Tiếng Anh", "Tiếng Đức", "Tiếng Hàn", "Tiếng Nhật", "Tiếng Thái", "Tiếng Trung", "Tiếng Pháp", "Tiếng Tây Ban Nha", "Tiếng Hindi", "Tiếng Ả Rập", "Tiếng Ý", "Tiếng Nga", "Tiếng Filipino"];
         
         const langCodeMap = {
-            "Tiếng Việt": "vi-VN", "Tiếng Anh": "en-US", "Tiếng Đức": "de-DE", "Tiếng Hàn": "ko-KR", 
-            "Tiếng Nhật": "ja-JP", "Tiếng Thái": "th-TH", "Tiếng Trung": "zh-CN", "Tiếng Pháp": "fr-FR", 
-            "Tiếng Tây Ban Nha": "es-ES", "Tiếng Ý": "it-IT", "Tiếng Nga": "ru-RU"
-        };
+    "Tiếng Việt": "vi-VN", "Tiếng Anh": "en-US", "Tiếng Đức": "de-DE", "Tiếng Hàn": "ko-KR", 
+    "Tiếng Nhật": "ja-JP", "Tiếng Thái": "th-TH", "Tiếng Trung": "zh-CN", "Tiếng Pháp": "fr-FR", 
+    "Tiếng Tây Ban Nha": "es-ES", "Tiếng Ý": "it-IT", "Tiếng Nga": "ru-RU",
+    "Tiếng Ả Rập": "ar-SA", "Tiếng Filipino": "fil-PH", "Tiếng Hindi": "hi-IN"
+};;
 
         let globalParsedData = {}; 
         let availableVoices = [];
@@ -124,6 +125,7 @@
         
         let recognition;
         let finalTranscript = "";
+        let interimTranscript = "";
 
         function init() {
             const selectorContainer = document.getElementById('language-selectors');
@@ -146,12 +148,6 @@
 
             populateVoices();
             if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = populateVoices;
-            
-            if ('webkitSpeechRecognition' in window) {
-                recognition = new webkitSpeechRecognition();
-                recognition.continuous = false;
-                recognition.interimResults = true;
-            }
         }
 
         function populateVoices() {
@@ -240,7 +236,6 @@
                 tr.id = `row-${i}`;
                 
                 tr.onclick = (e) => {
-                    // Click dòng để nghe, bỏ qua nút bấm
                     if(e.target.tagName !== 'BUTTON' && !e.target.closest('.action-area')) {
                         readSingleTurn(i);
                     }
@@ -295,7 +290,6 @@
                     if (userRole !== 'none' && speaker === userRole && lang === targetLang) {
                         textDiv.classList.add('hidden-text');
                         actionArea.style.display = 'flex';
-                        // Thêm thẻ feedback-box vào giao diện
                         actionArea.innerHTML = `
                             <button class="record-btn" id="btn-rec-${index}" onclick="toggleRecord(${index}, event)">🔴 Thu âm</button>
                             <button class="play-record-btn" id="btn-play-${index}" onclick="playUserAudio(${index}, event)" ${userRecordings[index] ? 'style="display:inline-flex;"' : ''}>▶ Nghe Lại</button>
@@ -307,11 +301,9 @@
             });
         }
 
-        // --- THUẬT TOÁN CHẤM ĐIỂM & TÌM TỪ SAI ---
         function analyzeSpeechAndGenerateHTML(originalText, spokenText) {
-            if (!spokenText) return { score: 0, html: "<em>Không nghe thấy âm thanh. Vui lòng thử lại.</em>", raw: "" };
+            if (!spokenText || spokenText.trim() === "") return { score: 0, html: "<em>Không nghe thấy âm thanh. Vui lòng thử lại.</em>", raw: "" };
             
-            // Xóa dấu câu để so sánh chính xác
             const cleanOrgWords = originalText.split(/\s+/);
             const cleanSpkWords = spokenText.toLowerCase().replace(/[.,!?()（）"']/g, "").split(/\s+/);
 
@@ -329,7 +321,7 @@
                 for(let i = 0; i < cleanSpkWords.length; i++) {
                     if(cleanSpkWords[i] === cleanWord) {
                         found = true;
-                        cleanSpkWords[i] = null; // Đánh dấu đã dùng để tránh trùng
+                        cleanSpkWords[i] = null; 
                         break;
                     }
                 }
@@ -368,14 +360,32 @@
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
                 finalTranscript = "";
+                interimTranscript = "";
 
-                if(recognition) {
+                // Khởi tạo lại Recognition mỗi lần bấm thu để tránh lỗi Abort/Trôi ngôn ngữ
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (SpeechRecognition) {
+                    recognition = new SpeechRecognition();
+                    recognition.continuous = true; // Sửa thành true để không tự ngắt
+                    recognition.interimResults = true;
                     recognition.lang = langCodeMap[targetLang] || 'en-US';
+
                     recognition.onresult = (e) => {
+                        let currentInterim = "";
                         for (let i = e.resultIndex; i < e.results.length; ++i) {
-                            if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript + " ";
+                            if (e.results[i].isFinal) {
+                                finalTranscript += e.results[i][0].transcript + " ";
+                            } else {
+                                currentInterim += e.results[i][0].transcript;
+                            }
                         }
+                        interimTranscript = currentInterim; // Lưu tạm để tránh mất chữ cuối
                     };
+
+                    recognition.onerror = (e) => {
+                        console.warn("Lỗi nhận diện giọng nói: ", e.error);
+                    };
+
                     recognition.start();
                 }
 
@@ -388,9 +398,11 @@
                     document.getElementById(`btn-play-${index}`).style.display = 'inline-flex';
                     stream.getTracks().forEach(track => track.stop());
                     
-                    // Xử lý và in kết quả sau khi thu âm xong (đợi API trả chữ)
+                    // Xử lý kết hợp Final và Interim text phòng trường hợp user bấm stop nhanh
+                    let textToAnalyze = (finalTranscript + " " + interimTranscript).trim();
+
                     setTimeout(() => {
-                        let analysis = analyzeSpeechAndGenerateHTML(originalText, finalTranscript);
+                        let analysis = analyzeSpeechAndGenerateHTML(originalText, textToAnalyze);
                         
                         const scoreBadge = document.getElementById(`score-${index}`);
                         const feedbackBox = document.getElementById(`feedback-${index}`);
@@ -398,25 +410,22 @@
                         scoreBadge.style.display = 'inline-block';
                         feedbackBox.style.display = 'block';
                         
-                        // Đổi màu Score
                         if(analysis.score >= 80) { scoreBadge.style.background = '#c6f6d5'; scoreBadge.style.color = '#22543d'; scoreBadge.innerText = `Tuyệt vời: ${analysis.score}%`; }
                         else if(analysis.score >= 50) { scoreBadge.style.background = '#fefcbf'; scoreBadge.style.color = '#744210'; scoreBadge.innerText = `Khá tốt: ${analysis.score}%`; }
                         else { scoreBadge.style.background = '#fed7d7'; scoreBadge.style.color = '#742a2a'; scoreBadge.innerText = `Sai nhiều: ${analysis.score}%`; }
                         
-                        // In chi tiết phát âm
                         feedbackBox.innerHTML = `
                             <div style="margin-bottom: 8px;"><strong>Hệ thống nghe được:</strong> <span style="color:#4a5568;">"${analysis.raw || "Không rõ tiếng"}"</span></div>
                             <div><strong>Chẩn đoán lỗi:</strong> ${analysis.html}</div>
                         `;
                         
-                        // Nếu đang ở chế độ Thực Hành, chờ 3 giây để user xem lỗi rồi mới tự động qua câu tiếp theo
                         if(isInteractiveMode) {
                             setTimeout(() => {
                                 document.getElementById(`row-${index}`).classList.remove('waiting-user');
                                 processInteractiveTurn(index + 1);
                             }, 3000); 
                         }
-                    }, 800); // Delay 800ms đợi STT trả về kết quả cuối
+                    }, 500); // Giảm delay xuống vì text đã được lưu trữ an toàn
                 };
 
                 mediaRecorder.start();
@@ -440,6 +449,7 @@
             isPlaying = false;
             isInteractiveMode = false;
             document.querySelectorAll('#table-body tr').forEach(tr => { tr.classList.remove('playing', 'waiting-user'); });
+            if(recognition) recognition.stop();
         }
 
         function readSingleTurn(index) {
